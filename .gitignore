@@ -1,0 +1,21 @@
+# Files.
+**/.DS_Store
+**/.env
+
+# Folders.
+**/node_modules/
+**/.pnpm-store/
+**/.turbo/
+**/.zap/
+**/dist/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars.local
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

@@ -1,0 +1,35 @@
+project: my-project
+env_files: [.env.local, .env]
+native:
+  backend:
+    aliases: [be, b]
+    cmd: pnpm --filter=@my-org/my-project-backend dev
+    env:
+      - APP_ENV
+      - BACKEND_PORT
+      - FRONTEND_URL
+  frontend:
+    aliases: [fe, f]
+    link: http://localhost:${FRONTEND_PORT}
+    cmd: pnpm --filter=@my-org/my-project-frontend dev
+    env:
+      - VITE_APP_ENV
+      - FRONTEND_PORT
+      - VITE_API_BASE_URL
+    depends_on: [backend]
+tasks:
+  lint:
+    cmds:
+      - pnpm eslint . --fix
+  check:
+    cmds:
+      - pnpm eslint . --fix
+      - pnpm turbo run typecheck
+  build:
+    cmds:
+      - pnpm turbo run build --filter=@my-org/my-project-backend
+      - pnpm turbo run build --filter=@my-org/my-project-frontend
+  vitest:
+    aliases: [unit]
+    cmds:
+      - pnpm test
