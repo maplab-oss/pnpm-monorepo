@@ -13,7 +13,12 @@ This setup guide clones the PNPM monorepo template from `https://github.com/mapl
 ### 1. Clone template
 
 ```bash
-./etc/bin/clone_template.sh
+# Clone template into current directory
+git clone https://github.com/maplab-oss/pnpm-monorepo.git .
+
+# Remove git history for fresh start
+rm -rf .git
+git init
 ```
 
 Clones template and initializes fresh git repo.
