@@ -16,6 +16,7 @@ export default [
       "etc/**",
       "**/vitest.config.ts",
       "**/vite.config.ts",
+      "**/playwright.config.ts",
       "**/next.config.ts",
       "**/postcss.config.mjs",
       "eslint.config.js",

@@ -25,6 +25,10 @@
       "path": "./packages/trpc"
     },
     {
+      "name": "e2e-tests",
+      "path": "./packages/e2e-tests"
+    },
+    {
       "name": "local",
       "path": "."
     }

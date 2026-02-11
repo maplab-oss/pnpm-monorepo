@@ -55,3 +55,13 @@ IMPORTANT: `.env.local` is for non-secrets, its ok for you to view and edit it! 
 ## Validation
 
 For small changes, run `zap t check` to run linting and typechecking. For bigger system level changes run that and also `zap t build` to check that all the builds still succeed.
+
+### Smoke Test
+
+After making changes that could cause runtime errors (tRPC procedures, API wiring, frontend data fetching, environment config), run:
+
+```bash
+zap t smoke
+```
+
+This launches a real browser against the running dev stack and verifies the frontend loads and tRPC data renders. It catches runtime errors that typechecking misses. The dev stack must be running first (`zap up`).

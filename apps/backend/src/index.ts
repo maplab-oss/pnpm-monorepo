@@ -5,11 +5,7 @@ import {
   type FastifyTRPCPluginOptions,
 } from "@trpc/server/adapters/fastify";
 import { isProd, isDev, env } from "./config";
-import {
-  t,
-  createLogger,
-  type AppContext,
-} from "@my-org/my-project-server";
+import { t, createLogger, type AppContext } from "@my-org/my-project-server";
 import { createTrpcRouter, type AppRouter } from "@my-org/my-project-trpc";
 
 const port = env.BACKEND_PORT;

@@ -33,3 +33,8 @@ tasks:
     aliases: [unit]
     cmds:
       - pnpm test
+  smoke:
+    env:
+      - FRONTEND_PORT
+    cmds:
+      - pnpm --filter=@my-org/my-project-e2e-tests test

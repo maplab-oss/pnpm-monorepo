@@ -9,6 +9,10 @@
 **/.zap/
 **/dist/
 
+# Playwright
+**/test-results/
+**/playwright-report/
+
 # Terraform
 **/.terraform/
 *.tfstate
