@@ -1,6 +1,40 @@
-# Project Setup Guide for AI Agents
+# PNPM Monorepo Template Setup
 
-This is a generic TypeScript monorepo template that needs to be customized for your specific project. The setup process assumes you have access to the following fields:
+This setup guide will:
+1. **Clone** the PNPM monorepo template from `https://github.com/maplab-oss/pnpm-monorepo`
+2. **Transform** all generic placeholders with your project details
+3. **Install** dependencies and development tools
+4. **Verify** the project builds and runs
+
+The template contains a full-stack TypeScript monorepo with React frontend, Fastify backend, tRPC API, and shared packages.
+
+## Prerequisites
+
+The setup process will install these tools if not present:
+
+**Required Runtimes:**
+- **Node.js** (v18+) - JavaScript runtime
+- **pnpm** (v8+) - Package manager (installed via corepack if missing)
+
+**Development Tools:**
+- **Zapper** - Process manager for running dev servers
+- **Turbo** - Build system (installed as project dependency)
+
+**Runtime Check:**
+```bash
+# Check if Node.js is installed
+node --version || echo "Node.js required - install from https://nodejs.org"
+
+# Enable pnpm (comes with Node.js 16+)
+corepack enable
+
+# Install Zapper globally
+npm install -g @hyperdoc/zapper
+```
+
+---
+
+## Setup Checklist
 
 **Available Fields:**
 - **Project display name**: Human-readable name (required)
@@ -8,21 +42,37 @@ This is a generic TypeScript monorepo template that needs to be customized for y
 - **Project slug**: Kebab-case identifier (optional, inferred from display name if blank)
 - **Emoji**: For favicon and branding (optional)
 
----
+### 1. **Clone Template**
 
-Cloning the repo:
+```bash
+# Clone into current directory
+git clone https://github.com/maplab-oss/pnpm-monorepo.git .
 
-when you start, you'll be in an empty project folder. You need to clone the repo from GitHub into the current folder:
+# Remove git history for fresh start
+rm -rf .git
+git init
+```
 
-https://github.com/maplab-oss/pnpm-monorepo
+### 2. **Install Prerequisites**
 
----
+```bash
+# Verify Node.js (exit if not found)
+if ! command -v node &> /dev/null; then
+  echo "❌ Node.js not found. Install from https://nodejs.org (v18+)"
+  exit 1
+fi
 
-## Setup Checklist
+# Enable pnpm package manager
+corepack enable
 
-Complete these tasks to transform the template into the new project:
+# Install Zapper globally
+npm install -g @hyperdoc/zapper
 
-### 1. **Programmatic Replacements**
+# Install project dependencies
+pnpm install
+```
+
+### 3. **Transform Project (Programmatic)**
 
    Use find-and-replace across the entire codebase for speed:
 
@@ -58,7 +108,7 @@ Complete these tasks to transform the template into the new project:
    sed -i '' 's/@my-org\/my-project/@{slug}/g' apps/backend/Dockerfile
    ```
 
-### 2. **Configure ports (Programmatic)**
+### 4. **Configure ports (Programmatic)**
 
    Generate random ports to avoid conflicts:
    ```bash
@@ -71,7 +121,7 @@ Complete these tasks to transform the template into the new project:
    sed -i '' "s|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:$BACKEND_PORT|" .env.local
    ```
 
-### 3. **Update project metadata (Manual)**
+### 5. **Update project metadata (Manual)**
 
    These require content generation and are better done manually:
 
@@ -103,7 +153,7 @@ Complete these tasks to transform the template into the new project:
      {description}
      ```
 
-### 4. **Update branding (Programmatic)**
+### 6. **Update branding (Programmatic)**
 
    ```bash
    # Generate favicon if emoji provided
@@ -113,7 +163,7 @@ Complete these tasks to transform the template into the new project:
    fi
    ```
 
-### 5. **Verification and cleanup**
+### 7. **Verification and cleanup**
 
    ```bash
    # Verify all imports resolve
@@ -128,18 +178,48 @@ Complete these tasks to transform the template into the new project:
 
 ---
 
-## Programmatic Setup Script
+## Complete Setup Script
 
-For maximum speed, combine the programmatic steps:
+This script handles the entire setup process:
 
 ```bash
 #!/bin/bash
 set -e
 
+# Configuration (replace with actual values)
 SLUG="{slug}"
 DISPLAY_NAME="{display-name}"
 DESCRIPTION="{description}"
 EMOJI="{emoji}"
+
+echo "🚀 Setting up PNPM Monorepo Template..."
+
+# 1. Clone template
+echo "📥 Cloning template..."
+git clone https://github.com/maplab-oss/pnpm-monorepo.git .
+rm -rf .git
+git init
+
+# 2. Install prerequisites
+echo "🔧 Installing prerequisites..."
+
+# Check Node.js
+if ! command -v node &> /dev/null; then
+  echo "❌ Node.js not found. Install from https://nodejs.org (v18+)"
+  exit 1
+fi
+
+# Enable pnpm
+corepack enable
+
+# Install Zapper
+npm install -g @hyperdoc/zapper
+
+# Install dependencies
+pnpm install
+
+# 3. Transform project
+echo "🔄 Transforming project..."
 
 # Replace package names
 find . -name "package.json" -not -path "./node_modules/*" | xargs sed -i '' "s/@my-org\/my-project/@$SLUG/g"
@@ -159,23 +239,32 @@ sed -i '' "s/My project/$DISPLAY_NAME/g" apps/frontend/src/App.test.tsx
 # Update Dockerfile
 sed -i '' "s/@my-org\/my-project/@$SLUG/g" apps/backend/Dockerfile
 
-# Generate random ports
+# 4. Configure ports
+echo "🔌 Configuring ports..."
 BACKEND_PORT=$(./etc/bin/randomport)
 FRONTEND_PORT=$(./etc/bin/randomport)
 sed -i '' "s/BACKEND_PORT=.*/BACKEND_PORT=$BACKEND_PORT/" .env.local
 sed -i '' "s/FRONTEND_PORT=.*/FRONTEND_PORT=$FRONTEND_PORT/" .env.local
 sed -i '' "s|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:$BACKEND_PORT|" .env.local
 
-# Generate favicon if emoji provided
+# 5. Generate favicon
 if [ -n "$EMOJI" ]; then
+  echo "🎨 Generating favicon..."
   FAVICON_B64=$(./etc/bin/emoji-favicon "$EMOJI")
   sed -i '' "s|<link rel=\"icon\" href=\"[^\"]*\"|<link rel=\"icon\" href=\"$FAVICON_B64\"|" apps/frontend/index.html
 fi
 
-echo "✅ Programmatic setup complete. Manual tasks remaining:"
-echo "  - Update README.md content"
-echo "  - Update AGENTS.md header"
-echo "  - Verify with: pnpm typecheck && pnpm build"
+# 6. Verification
+echo "✅ Verifying setup..."
+pnpm typecheck
+pnpm build
+
+echo ""
+echo "✅ Setup complete! Manual tasks remaining:"
+echo "  📝 Update README.md with project description"
+echo "  📝 Update AGENTS.md header"
+echo "  🚀 Start development: zap up"
+echo "  🌐 Frontend will be at: http://localhost:$FRONTEND_PORT"
 ```
 
 ## AI Agent Instructions
