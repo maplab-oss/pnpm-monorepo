@@ -1,16 +1,12 @@
 # Project Setup Guide for AI Agents
 
-This is a generic TypeScript monorepo template that needs to be customized for your specific project. Before proceeding, gather the following information from the user:
+This is a generic TypeScript monorepo template that needs to be customized for your specific project. The setup process assumes you have access to the following fields:
 
-**Required Information:**
-- **Organization name**: Your GitHub organization or username (e.g., "acme-corp", "myusername")
-- **Project name**: The name of your project (e.g., "task-manager", "chat-app")
-- **Project display name**: Human-readable name (e.g., "Task Manager", "Chat App")
-- **Project description**: A one-liner explaining what the project does
-- **Repository URL**: GitHub repository URL (e.g., https://github.com/acme-corp/task-manager)
-- **Emoji**: For favicon and branding (optional, default: 🚀)
-
-If this information is not provided, **ask the user for it before proceeding**.
+**Available Fields:**
+- **Project display name**: Human-readable name (required)
+- **Project description**: One-liner about the project (required)
+- **Project slug**: Kebab-case identifier (optional, inferred from display name if blank)
+- **Emoji**: For favicon and branding (optional)
 
 ---
 
@@ -26,42 +22,64 @@ https://github.com/maplab-oss/pnpm-monorepo
 
 Complete these tasks to transform the template into the new project:
 
-### 1. **Replace all generic references**
+### 1. **Programmatic Replacements**
 
-   The template uses these generic placeholders that need to be replaced:
-   - `@my-org` → `@{organization-name}`
-   - `my-project` → `{project-name}`
-   - "My project" → "{project-display-name}"
+   Use find-and-replace across the entire codebase for speed:
 
-   **Files to update:**
-   - All `package.json` files in root, apps/*, and packages/*
-   - All TypeScript imports in `src/` directories
-   - `zap.yaml` project name and filter commands
-   - `my-project.code-workspace` → `{project-name}.code-workspace`
-   - `apps/frontend/index.html` title
-   - `packages/core/src/index.ts` message
-   - `apps/frontend/src/App.test.tsx` test assertions
-   - `apps/backend/Dockerfile` CMD filter
-   - All documentation files in `docs/`
+   **Package names:**
+   - `@my-org/my-project` → `@{slug}`
+   - All package.json files: `"name": "@my-org/my-project-*"` → `"name": "@{slug}-*"`
 
-### 2. **Configure port numbers**
+   **Project references:**
+   - `my-project` → `{slug}` (kebab-case contexts)
+   - `"My project"` → `"{display-name}"` (quoted strings)
+   - `My project` → `{display-name}` (unquoted text)
 
-   Assign random ports to avoid conflicts with other projects:
-   - Use `./etc/bin/randomport` to generate ports
-   - Update `.env.local`:
-     ```bash
-     BACKEND_PORT={random-port-1}
-     FRONTEND_PORT={random-port-2}
-     VITE_API_BASE_URL=http://localhost:{backend-port}
-     ```
+   **Files to process programmatically:**
+   ```bash
+   # Package names in all package.json files
+   find . -name "package.json" -not -path "./node_modules/*" | xargs sed -i '' 's/@my-org\/my-project/@{slug}/g'
 
-### 3. **Update project metadata**
+   # TypeScript imports
+   find . -name "*.ts" -o -name "*.tsx" | xargs sed -i '' 's/@my-org\/my-project/@{slug}/g'
 
-   - **README.md**: Replace with project-specific content:
+   # Zap configuration
+   sed -i '' 's/my-project/{slug}/g' zap.yaml
+
+   # Workspace file
+   mv my-project.code-workspace {slug}.code-workspace
+
+   # Frontend title and core message
+   sed -i '' 's/My project/{display-name}/g' apps/frontend/index.html
+   sed -i '' 's/My project/{display-name}/g' packages/core/src/index.ts
+   sed -i '' 's/My project/{display-name}/g' apps/frontend/src/App.test.tsx
+
+   # Dockerfile
+   sed -i '' 's/@my-org\/my-project/@{slug}/g' apps/backend/Dockerfile
+   ```
+
+### 2. **Configure ports (Programmatic)**
+
+   Generate random ports to avoid conflicts:
+   ```bash
+   BACKEND_PORT=$(./etc/bin/randomport)
+   FRONTEND_PORT=$(./etc/bin/randomport)
+
+   # Update .env.local
+   sed -i '' "s/BACKEND_PORT=.*/BACKEND_PORT=$BACKEND_PORT/" .env.local
+   sed -i '' "s/FRONTEND_PORT=.*/FRONTEND_PORT=$FRONTEND_PORT/" .env.local
+   sed -i '' "s|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:$BACKEND_PORT|" .env.local
+   ```
+
+### 3. **Update project metadata (Manual)**
+
+   These require content generation and are better done manually:
+
+   - **README.md**: Replace entire content:
      ```markdown
-     # {emoji} {project-display-name}
+     # {emoji} {display-name}
 
-     {project-description}
+     {description}
 
      ## Getting Started
 
@@ -78,69 +96,100 @@ Complete these tasks to transform the template into the new project:
      - Tools: ESLint, Vitest, Zapper
      ```
 
-   - **AGENTS.md**: Update the header and description:
+   - **AGENTS.md**: Update header and description:
      ```markdown
-     # {project-display-name}
+     # {display-name}
 
-     {project-description}
+     {description}
      ```
 
-### 4. **Update branding**
+### 4. **Update branding (Programmatic)**
 
-   - **Favicon**: Use `./etc/bin/emoji-favicon {emoji}` to generate a base64 favicon
-   - **Frontend title**: Update `apps/frontend/index.html` `<title>` tag
-   - **Core message**: Update `packages/core/src/index.ts` export message
-
-### 5. **Verify package dependencies**
-
-   Ensure all package.json files have correct workspace dependencies:
    ```bash
-   # Should all use the new organization/project names
-   @{organization-name}/{project-name}-core
-   @{organization-name}/{project-name}-server
-   @{organization-name}/{project-name}-trpc
+   # Generate favicon if emoji provided
+   if [ -n "{emoji}" ]; then
+     FAVICON_B64=$(./etc/bin/emoji-favicon "{emoji}")
+     sed -i '' "s|<link rel=\"icon\" href=\"[^\"]*\"|<link rel=\"icon\" href=\"$FAVICON_B64\"|" apps/frontend/index.html
+   fi
    ```
 
-### 6. **Clean up template artifacts**
+### 5. **Verification and cleanup**
 
-   - Delete this `PROJECT_SETUP_GUIDE.md`
-   - Remove any remaining placeholder content
-   - Verify all imports resolve correctly: `pnpm typecheck`
+   ```bash
+   # Verify all imports resolve
+   pnpm typecheck
 
-### 7. **Initialize and commit**
+   # Test build
+   pnpm build
 
-   - Test that everything works: `pnpm install && zap up`
-   - Create initial commit: `git add . && git commit -m "Initial commit: {project-display-name}"`
-   - Set up remote: `git remote add origin {repository-url}`
-   - Push to GitHub: `git push -u origin main`
+   # Delete setup guide
+   rm PROJECT_SETUP_GUIDE.md
+   ```
 
 ---
 
-## Example Transformation
+## Programmatic Setup Script
 
-If user provides:
-- Organization: "acme-corp"
-- Project name: "task-manager"
-- Display name: "Task Manager"
-- Description: "A collaborative task management application"
-- Emoji: "📋"
+For maximum speed, combine the programmatic steps:
 
-Then transform:
-```
-@my-org/my-project-* → @acme-corp/task-manager-*
-"My project" → "Task Manager"
-my-project → task-manager
-🚀 → 📋
+```bash
+#!/bin/bash
+set -e
+
+SLUG="{slug}"
+DISPLAY_NAME="{display-name}"
+DESCRIPTION="{description}"
+EMOJI="{emoji}"
+
+# Replace package names
+find . -name "package.json" -not -path "./node_modules/*" | xargs sed -i '' "s/@my-org\/my-project/@$SLUG/g"
+
+# Replace TypeScript imports
+find . -name "*.ts" -o -name "*.tsx" | xargs sed -i '' "s/@my-org\/my-project/@$SLUG/g"
+
+# Replace project references
+sed -i '' "s/my-project/$SLUG/g" zap.yaml
+mv my-project.code-workspace "$SLUG.code-workspace"
+
+# Replace display names
+sed -i '' "s/My project/$DISPLAY_NAME/g" apps/frontend/index.html
+sed -i '' "s/My project/$DISPLAY_NAME/g" packages/core/src/index.ts
+sed -i '' "s/My project/$DISPLAY_NAME/g" apps/frontend/src/App.test.tsx
+
+# Update Dockerfile
+sed -i '' "s/@my-org\/my-project/@$SLUG/g" apps/backend/Dockerfile
+
+# Generate random ports
+BACKEND_PORT=$(./etc/bin/randomport)
+FRONTEND_PORT=$(./etc/bin/randomport)
+sed -i '' "s/BACKEND_PORT=.*/BACKEND_PORT=$BACKEND_PORT/" .env.local
+sed -i '' "s/FRONTEND_PORT=.*/FRONTEND_PORT=$FRONTEND_PORT/" .env.local
+sed -i '' "s|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:$BACKEND_PORT|" .env.local
+
+# Generate favicon if emoji provided
+if [ -n "$EMOJI" ]; then
+  FAVICON_B64=$(./etc/bin/emoji-favicon "$EMOJI")
+  sed -i '' "s|<link rel=\"icon\" href=\"[^\"]*\"|<link rel=\"icon\" href=\"$FAVICON_B64\"|" apps/frontend/index.html
+fi
+
+echo "✅ Programmatic setup complete. Manual tasks remaining:"
+echo "  - Update README.md content"
+echo "  - Update AGENTS.md header"
+echo "  - Verify with: pnpm typecheck && pnpm build"
 ```
 
 ## AI Agent Instructions
 
-Your job is not complete until:
-1. ✅ All generic placeholders are replaced with real values
-2. ✅ All package.json files have correct names and dependencies
-3. ✅ All TypeScript imports resolve correctly
-4. ✅ Project builds and starts successfully (`zap up`)
-5. ✅ Changes are committed and pushed to the correct repository
-6. ✅ README.md is rewritten for the specific project
+**Programmatic tasks** (use the script above for speed):
+1. ✅ Replace all package names and imports
+2. ✅ Update workspace and config files
+3. ✅ Generate random ports
+4. ✅ Update favicon if emoji provided
 
-Finally, confirm with the user that the project is running locally and provide the frontend URL.
+**Manual tasks** (require content generation):
+1. ✅ Rewrite README.md with project-specific content
+2. ✅ Update AGENTS.md header and description
+3. ✅ Verify everything works: `pnpm typecheck && zap up`
+4. ✅ Commit and push changes
+
+The programmatic approach handles ~80% of the work instantly, leaving only content generation as manual tasks. Finally, confirm with the user that the project is running locally and provide the frontend URL.
