@@ -2,13 +2,13 @@
 
 /**
  * Converts an emoji to a base64-encoded SVG favicon
- * Usage: ./emoji-favicon "🦄"
+ * Usage: ./emoji_favicon.sh "🦄"
  */
 
 const emoji = process.argv[2];
 
 if (!emoji) {
-  console.error('Usage: emoji-favicon "🚀"');
+  console.error('Usage: emoji_favicon.sh "🚀"');
   process.exit(1);
 }
 

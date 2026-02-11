@@ -1,32 +1,61 @@
 #!/bin/bash
-set -e
 
-echo "🔧 Setting up development machine..."
+echo "Checking machine setup..."
+echo ""
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-  echo "❌ Node.js not found. Install from https://nodejs.org (v18+)"
-  echo "   Or use a version manager like nvm:"
-  echo "   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
-  echo "   nvm install node"
-  exit 1
-fi
+# Track results
+node_ok=false
+pnpm_ok=false
+zapper_ok=false
+any_failures=false
 
-echo "✅ Node.js $(node --version) found"
-
-# Enable pnpm package manager
-echo "🔄 Enabling pnpm..."
-corepack enable
-
-# Install Zapper globally if not present
-if ! command -v zap &> /dev/null; then
-  echo "🔄 Installing Zapper..."
-  npm install -g @hyperdoc/zapper
+# Check Node.js
+if command -v node &> /dev/null; then
+  node_version=$(node --version)
+  echo "Node.js: $node_version (installed)"
+  node_ok=true
 else
-  echo "✅ Zapper already installed"
+  echo "Node.js: missing"
+  any_failures=true
 fi
 
-echo "✅ Machine setup complete!"
-echo "   Node.js: $(node --version)"
-echo "   pnpm: $(pnpm --version)"
-echo "   Zapper: $(zap --version)"
+# Check pnpm
+if command -v pnpm &> /dev/null; then
+  pnpm_version=$(pnpm --version)
+  echo "pnpm: $pnpm_version (installed)"
+  pnpm_ok=true
+else
+  echo "pnpm: missing"
+  any_failures=true
+fi
+
+# Check Zapper
+if command -v zap &> /dev/null; then
+  zapper_version=$(zap --version)
+  echo "Zapper: $zapper_version (installed)"
+  zapper_ok=true
+else
+  echo "Zapper: missing"
+  any_failures=true
+fi
+
+echo ""
+echo "SUMMARY:"
+if [ "$any_failures" = true ]; then
+  echo "Machine is NOT ready for development."
+  echo ""
+  echo "Missing dependencies:"
+  if [ "$node_ok" = false ]; then
+    echo "- Node.js (install from https://nodejs.org v18+)"
+  fi
+  if [ "$pnpm_ok" = false ]; then
+    echo "- pnpm (run: corepack enable)"
+  fi
+  if [ "$zapper_ok" = false ]; then
+    echo "- Zapper (run: npm install -g @hyperdoc/zapper)"
+  fi
+  exit 1
+else
+  echo "Machine is ready for development."
+  exit 0
+fi

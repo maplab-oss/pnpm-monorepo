@@ -362,7 +362,7 @@ if (!isProd) {
 
 **Generate random port:**
 ```bash
-etc/bin/randomport  # e.g., 8949
+etc/bin/randomport.sh  # e.g., 8949
 ```
 
 **Add to `.env.local`:**

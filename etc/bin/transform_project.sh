@@ -21,14 +21,18 @@ echo "  Emoji: $EMOJI"
 
 # Replace package names
 echo "📦 Updating package names..."
-find . -name "package.json" -not -path "./node_modules/*" | xargs sed -i '' "s/@my-org\/my-project/@$SLUG/g"
+find . -name "package.json" -not -path "./node_modules/*" | xargs sed -i '' "s/@my-org\/my-project-/$SLUG-/g"
+find . -name "package.json" -not -path "./node_modules/*" | xargs sed -i '' "s/@my-org\/my-project/$SLUG/g"
 
 # Replace TypeScript imports
 echo "📄 Updating TypeScript imports..."
-find . -name "*.ts" -o -name "*.tsx" | xargs sed -i '' "s/@my-org\/my-project/@$SLUG/g"
+find . -name "*.ts" -o -name "*.tsx" | xargs sed -i '' "s/@my-org\/my-project-/$SLUG-/g"
+find . -name "*.ts" -o -name "*.tsx" | xargs sed -i '' "s/@my-org\/my-project/$SLUG/g"
 
 # Replace project references
 echo "⚙️  Updating configuration files..."
+sed -i '' "s/@my-org\/my-project-/$SLUG-/g" zap.yaml
+sed -i '' "s/@my-org\/my-project/$SLUG/g" zap.yaml
 sed -i '' "s/my-project/$SLUG/g" zap.yaml
 mv my-project.code-workspace "$SLUG.code-workspace" 2>/dev/null || true
 
@@ -39,12 +43,13 @@ sed -i '' "s/My project/$DISPLAY_NAME/g" packages/core/src/index.ts
 sed -i '' "s/My project/$DISPLAY_NAME/g" apps/frontend/src/App.test.tsx
 
 # Update Dockerfile
-sed -i '' "s/@my-org\/my-project/@$SLUG/g" apps/backend/Dockerfile
+sed -i '' "s/@my-org\/my-project-/$SLUG-/g" apps/backend/Dockerfile
+sed -i '' "s/@my-org\/my-project/$SLUG/g" apps/backend/Dockerfile
 
 # Generate random ports
 echo "🔌 Configuring random ports..."
-BACKEND_PORT=$(./etc/bin/randomport)
-FRONTEND_PORT=$(./etc/bin/randomport)
+BACKEND_PORT=$(./etc/bin/randomport.sh)
+FRONTEND_PORT=$(./etc/bin/randomport.sh)
 sed -i '' "s/BACKEND_PORT=.*/BACKEND_PORT=$BACKEND_PORT/" .env.local
 sed -i '' "s/FRONTEND_PORT=.*/FRONTEND_PORT=$FRONTEND_PORT/" .env.local
 sed -i '' "s|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:$BACKEND_PORT|" .env.local
@@ -52,11 +57,11 @@ sed -i '' "s|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:$BACKEND_PO
 # Generate favicon if emoji provided
 if [ -n "$EMOJI" ] && [ "$EMOJI" != "" ]; then
   echo "🎨 Generating favicon..."
-  if [ -f "./etc/bin/emoji-favicon" ]; then
-    FAVICON_B64=$(./etc/bin/emoji-favicon "$EMOJI")
+  if [ -f "./etc/bin/emoji_favicon.sh" ]; then
+    FAVICON_B64=$(./etc/bin/emoji_favicon.sh "$EMOJI")
     sed -i '' "s|<link rel=\"icon\" href=\"[^\"]*\"|<link rel=\"icon\" href=\"$FAVICON_B64\"|" apps/frontend/index.html
   else
-    echo "⚠️  emoji-favicon script not found, skipping favicon generation"
+    echo "⚠️  emoji_favicon.sh script not found, skipping favicon generation"
   fi
 fi
 
