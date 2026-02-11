@@ -10,21 +10,21 @@ This setup guide clones the PNPM monorepo template from `https://github.com/mapl
 
 ## Setup Steps
 
-### 1. Check machine prerequisites
-
-```bash
-./etc/bin/machine_setup.sh
-```
-
-Verifies that Node.js toolchain and Zapper are installed. If ANY dependencies are missing or ANY issues occur, STOP and ask the user what to do. Present ALL problems and options in a single AskUserQuestion.
-
-### 2. Clone template
+### 1. Clone template
 
 ```bash
 ./etc/bin/clone_template.sh
 ```
 
 Clones template and initializes fresh git repo.
+
+### 2. Check machine prerequisites
+
+```bash
+./etc/bin/machine_setup.sh
+```
+
+Verifies that Node.js toolchain and Zapper are installed. If ANY dependencies are missing or ANY issues occur, STOP and ask the user what to do. Present ALL problems and options in a single AskUserQuestion.
 
 ### 3. Transform project
 

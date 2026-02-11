@@ -13,7 +13,7 @@ pnpm build
 
 # Start services for end-to-end verification
 echo "🔄 Starting services for verification..."
-zap up --detach
+zap up
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to start..."
