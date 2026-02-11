@@ -34,6 +34,10 @@ Read these before making changes:
 - **[logging.md](docs/logging.md)** - For logging on backend (via tRPC context) and frontend
 - **[event-schema.md](docs/event-schema.md)** - For sending/storing any kind of events: errors, logs, analytics, real time events follow this
 
+## Extending
+
+If you need to add things to this project, like new services, databases, or integrations, read [zapper-usage.md](docs/zapper.md) about processes/docker and check the `docs/extensions` directory to see if any of those are applicable.
+
 ## UI
 
 The frontend uses [shadcn/ui](https://ui.shadcn.com/) for UI components. Add new components with `npx shadcn@latest add <component>` from the `apps/frontend` directory.
