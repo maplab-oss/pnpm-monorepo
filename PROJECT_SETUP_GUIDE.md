@@ -14,6 +14,14 @@ If this information is not provided, **ask the user for it before proceeding**.
 
 ---
 
+Cloning the repo:
+
+when you start, you'll be in an empty project folder. You need to clone the repo from GitHub into the current folder:
+
+https://github.com/maplab-oss/pnpm-monorepo
+
+---
+
 ## Setup Checklist
 
 Complete these tasks to transform the template into the new project:
